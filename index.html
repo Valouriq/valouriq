@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VALOURIQ — Custom DTF Prints</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0d0d0d;
+    --paper:#f7f5f1;
+    --film:#8a8a85;
+    --film-dim:#3a3a38;
+    --line: rgba(247,245,241,0.14);
+    --line-dark: rgba(13,13,13,0.14);
+    --display: 'Anton', sans-serif;
+    --body: 'Space Grotesk', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --radius: 2px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  button{font-family:inherit; cursor:pointer; border:none;}
+  input,select{font-family:inherit;}
+  ::selection{background:var(--paper); color:var(--ink);}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--film); display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:16px; height:1px; background:var(--film);}
+
+  /* ---------- Registration mark motif ---------- */
+  .regmark{
+    width:16px; height:16px; position:relative; flex:none; opacity:.8;
+  }
+  .regmark::before,.regmark::after{content:''; position:absolute; background:currentColor;}
+  .regmark::before{ left:50%; top:0; width:1px; height:100%; transform:translateX(-50%);}
+  .regmark::after{ top:50%; left:0; height:1px; width:100%; transform:translateY(-50%);}
+  .regmark span{
+    position:absolute; inset:0; border:1px solid currentColor; border-radius:50%;
+    transform:scale(.55);
+  }
+  .corner-marks{position:fixed; inset:0; pointer-events:none; z-index:40; color:var(--film);}
+  .corner-marks .regmark{position:absolute;}
+  .corner-marks .tl{top:18px; left:18px;}
+  .corner-marks .tr{top:18px; right:18px;}
+  .corner-marks .bl{bottom:18px; left:18px;}
+  .corner-marks .br{bottom:18px; right:18px;}
+
+  /* ---------- Nav ---------- */
+  header{
+    position:sticky; top:0; z-index:30;
+    background:rgba(13,13,13,0.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{display:flex; align-items:center; justify-content:space-between; padding:16px 24px;}
+  .logo{font-family:var(--display); font-size:22px; letter-spacing:.02em;}
+  .logo span{color:var(--film);}
+  .navlinks{display:flex; gap:28px; font-family:var(--mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase;}
+  .navlinks a{opacity:.75; transition:opacity .2s;}
+  .navlinks a:hover{opacity:1;}
+  .cart-btn{
+    display:flex; align-items:center; gap:8px;
+    background:var(--paper); color:var(--ink);
+    padding:9px 16px; font-family:var(--mono); font-size:12px; letter-spacing:.06em; text-transform:uppercase;
+    border-radius:var(--radius);
+  }
+  .cart-count{
+    background:var(--ink); color:var(--paper); font-size:10px; width:18px; height:18px;
+    display:flex; align-items:center; justify-content:center; border-radius:50%;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative; padding:120px 24px 90px; text-align:center;
+    border-bottom:1px solid var(--line);
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(247,245,241,0.05), transparent 40%),
+      radial-gradient(circle at 80% 60%, rgba(247,245,241,0.04), transparent 45%);
+  }
+  .hero .eyebrow{justify-content:center; margin-bottom:22px;}
+  .hero .eyebrow::before{display:none;}
+  h1.wordmark{
+    font-family:var(--display);
+    font-size:clamp(64px, 13vw, 156px);
+    line-height:.88;
+    letter-spacing:.01em;
+  }
+  .hero-sub{
+    max-width:520px; margin:26px auto 0; color:#cfcdc6; font-size:16px;
+  }
+  .hero-specs{
+    margin-top:38px; display:flex; gap:28px; justify-content:center; flex-wrap:wrap;
+    font-family:var(--mono); font-size:11px; letter-spacing:.06em; color:var(--film);
+  }
+  .hero-cta{margin-top:42px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+  .btn{
+    padding:14px 28px; font-family:var(--mono); font-size:12.5px; letter-spacing:.08em; text-transform:uppercase;
+    border-radius:var(--radius); border:1px solid var(--paper); transition:all .2s;
+  }
+  .btn-solid{background:var(--paper); color:var(--ink);}
+  .btn-solid:hover{background:transparent; color:var(--paper);}
+  .btn-ghost{background:transparent; color:var(--paper);}
+  .btn-ghost:hover{background:var(--paper); color:var(--ink);}
+
+  /* ---------- Section shell ---------- */
+  section{padding:96px 0; border-bottom:1px solid var(--line);}
+  .section-head{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:48px; gap:24px; flex-wrap:wrap;}
+  .section-head h2{font-family:var(--display); font-size:clamp(34px,5vw,54px); letter-spacing:.01em;}
+  .section-head p{color:var(--film); max-width:340px; font-size:14px;}
+
+  /* ---------- How it works ---------- */
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .step{background:var(--ink); padding:34px 28px;}
+  .step .num{font-family:var(--mono); font-size:12px; color:var(--film); margin-bottom:20px; display:block;}
+  .step h3{font-family:var(--display); font-size:24px; margin-bottom:10px; letter-spacing:.01em;}
+  .step p{color:#b9b7b0; font-size:14px;}
+
+  /* ---------- Catalog ---------- */
+  .cat-note{
+    font-family:var(--mono); font-size:11px; color:var(--film); background:rgba(247,245,241,0.04);
+    border:1px dashed var(--line); padding:12px 16px; margin-bottom:32px; border-radius:var(--radius);
+  }
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:22px;}
+  .card{
+    border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+    background:rgba(247,245,241,0.02); transition:transform .25s, border-color .25s;
+  }
+  .card:hover{transform:translateY(-4px); border-color:rgba(247,245,241,0.4);}
+  .card-art{
+    aspect-ratio:1/1.05; display:flex; align-items:center; justify-content:center; position:relative;
+    border-bottom:1px solid var(--line);
+  }
+  .card-body{padding:16px 18px 20px;}
+  .card-tag{font-family:var(--mono); font-size:10px; color:var(--film); letter-spacing:.08em; text-transform:uppercase;}
+  .card-name{font-family:var(--display); font-size:19px; margin:6px 0 2px; letter-spacing:.01em;}
+  .card-price{font-family:var(--mono); font-size:13px; color:var(--film); margin-bottom:14px;}
+  .card-add{
+    width:100%; padding:11px; border:1px solid var(--paper); background:transparent; color:var(--paper);
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; border-radius:var(--radius);
+    transition:all .2s;
+  }
+  .card-add:hover{background:var(--paper); color:var(--ink);}
+
+  /* mini tee SVG */
+  .tee-icon{width:62%; opacity:.92;}
+
+  /* ---------- Custom builder ---------- */
+  #builder{background:rgba(247,245,241,0.02);}
+  .builder-grid{display:grid; grid-template-columns: 1.1fr 1fr; gap:56px; align-items:start;}
+  @media (max-width: 860px){ .builder-grid{grid-template-columns:1fr;} }
+
+  .mock-stage{
+    border:1px solid var(--line); border-radius:var(--radius); padding:36px;
+    display:flex; align-items:center; justify-content:center; position:relative; min-height:440px;
+    background:
+      linear-gradient(var(--line-dark) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-dark) 1px, transparent 1px);
+    background-size:22px 22px;
+    background-color: rgba(0,0,0,0.15);
+  }
+  .mock-corner{position:absolute; color:var(--film);}
+  .mock-corner.tl{top:14px; left:14px;} .mock-corner.tr{top:14px; right:14px;}
+  .mock-corner.bl{bottom:14px; left:14px;} .mock-corner.br{bottom:14px; right:14px;}
+  #teeSvgWrap{width:100%; max-width:340px; position:relative;}
+  #teeSvgWrap svg{width:100%; display:block;}
+  #artLayer{
+    position:absolute; top:0; left:0; pointer-events:none;
+    clip-path:url(#teeClip);
+  }
+  #artImg{position:absolute; transform-origin:center center;}
+  .mock-caption{
+    position:absolute; bottom:-30px; left:0; right:0; text-align:center;
+    font-family:var(--mono); font-size:10px; color:var(--film); letter-spacing:.08em;
+  }
+
+  .builder-form label{
+    display:block; font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--film); margin-bottom:8px; margin-top:22px;
+  }
+  .builder-form label:first-child{margin-top:0;}
+  .upload-box{
+    border:1px dashed var(--film); border-radius:var(--radius); padding:22px; text-align:center; cursor:pointer;
+    font-family:var(--mono); font-size:12px; color:var(--film); transition:border-color .2s, color .2s;
+  }
+  .upload-box:hover{border-color:var(--paper); color:var(--paper);}
+  .upload-box input{display:none;}
+  .swatches{display:flex; gap:10px;}
+  .swatch{
+    width:38px; height:38px; border-radius:50%; border:2px solid var(--line); cursor:pointer; position:relative;
+  }
+  .swatch.active{border-color:var(--paper);}
+  .swatch.black{background:#111;}
+  .swatch.white{background:#f2f2ef;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  select, .qty-control{
+    width:100%; padding:11px 12px; background:transparent; border:1px solid var(--line); color:var(--paper);
+    border-radius:var(--radius); font-size:13px;
+  }
+  select option{background:var(--ink);}
+  .qty-control{display:flex; align-items:center; justify-content:space-between;}
+  .qty-control button{background:none; color:var(--paper); font-size:16px; width:24px;}
+  .range-row{display:flex; align-items:center; gap:12px;}
+  input[type=range]{flex:1; accent-color:var(--paper);}
+  .price-line{
+    display:flex; justify-content:space-between; align-items:baseline; margin-top:28px;
+    font-family:var(--mono); padding-top:18px; border-top:1px solid var(--line);
+  }
+  .price-line .amt{font-family:var(--display); font-size:30px;}
+  .builder-add{
+    width:100%; margin-top:18px; padding:16px; background:var(--paper); color:var(--ink);
+    font-family:var(--mono); font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; border-radius:var(--radius);
+  }
+  .builder-add:hover{opacity:.85;}
+  .hint{font-family:var(--mono); font-size:10.5px; color:var(--film); margin-top:10px;}
+
+  /* ---------- Footer ---------- */
+  footer{padding:56px 0 40px;}
+  .foot-grid{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px;}
+  .foot-logo{font-family:var(--display); font-size:30px;}
+  .foot-note{font-family:var(--mono); font-size:11px; color:var(--film); max-width:360px;}
+
+  /* ---------- Cart Drawer ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:opacity .25s; z-index:48;
+  }
+  .overlay.open{opacity:1; pointer-events:auto;}
+  .drawer{
+    position:fixed; top:0; right:0; height:100%; width:min(420px, 100%);
+    background:var(--ink); border-left:1px solid var(--line); z-index:49;
+    transform:translateX(100%); transition:transform .3s ease; display:flex; flex-direction:column;
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{padding:22px 24px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;}
+  .drawer-head h3{font-family:var(--display); font-size:22px;}
+  .drawer-close{background:none; color:var(--paper); font-size:22px;}
+  .drawer-items{flex:1; overflow-y:auto; padding:12px 24px;}
+  .drawer-item{display:flex; gap:12px; padding:16px 0; border-bottom:1px solid var(--line);}
+  .di-thumb{width:56px; height:56px; border:1px solid var(--line); border-radius:var(--radius); flex:none; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .di-thumb img{width:100%; height:100%; object-fit:cover;}
+  .di-info{flex:1;}
+  .di-name{font-size:14px; font-weight:600;}
+  .di-meta{font-family:var(--mono); font-size:10.5px; color:var(--film); margin-top:3px;}
+  .di-price{font-family:var(--mono); font-size:13px; margin-top:6px;}
+  .di-remove{font-family:var(--mono); font-size:10px; color:var(--film); text-decoration:underline; margin-top:6px; background:none;}
+  .drawer-empty{color:var(--film); font-family:var(--mono); font-size:12px; text-align:center; padding:60px 0;}
+  .drawer-foot{padding:20px 24px 26px; border-top:1px solid var(--line);}
+  .dtotal{display:flex; justify-content:space-between; font-family:var(--mono); font-size:13px; margin-bottom:16px;}
+  .dtotal .amt{font-family:var(--display); font-size:22px;}
+  .wa-input{
+    width:100%; padding:11px 12px; background:transparent; border:1px solid var(--line); color:var(--paper);
+    border-radius:var(--radius); font-size:13px; margin-bottom:12px; font-family:var(--mono);
+  }
+  .checkout-btn{
+    width:100%; padding:15px; background:var(--paper); color:var(--ink); border-radius:var(--radius);
+    font-family:var(--mono); font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px;
+  }
+  .checkout-btn:disabled{opacity:.4; cursor:not-allowed;}
+  .checkout-note{font-family:var(--mono); font-size:10px; color:var(--film); text-align:center;}
+
+  @media (max-width:640px){
+    .navlinks{display:none;}
+    .corner-marks{display:none;}
+    .hero{padding:90px 20px 60px;}
+    section{padding:64px 0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="corner-marks">
+  <div class="regmark tl"><span></span></div>
+  <div class="regmark tr"><span></span></div>
+  <div class="regmark bl"><span></span></div>
+  <div class="regmark br"><span></span></div>
+</div>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">VALOUR<span>IQ</span></div>
+    <div class="navlinks">
+      <a href="#catalog">Catalog</a>
+      <a href="#builder">Custom Order</a>
+      <a href="#how">Process</a>
+    </div>
+    <button class="cart-btn" onclick="openCart()">
+      Cart <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">DTF TRANSFER PRINTING — EST. 2026</div>
+  <h1 class="wordmark">VALOURIQ</h1>
+  <p class="hero-sub">Your artwork, pressed onto premium cotton. Upload a design, preview it live on a shirt, and order straight to your door — no minimum order, no middlemen.</p>
+  <div class="hero-specs">
+    <span>RES: 300 DPI</span>
+    <span>FILM: PET</span>
+    <span>CURE: 160°C / 15S</span>
+    <span>WASH: 30+ CYCLES</span>
+  </div>
+  <div class="hero-cta">
+    <a href="#builder" class="btn btn-solid">Design Your Shirt</a>
+    <a href="#catalog" class="btn btn-ghost">Browse Starter Drops</a>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>How it prints</h2>
+      <p>Three steps from your file to a finished garment. That's the whole process.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="num">01 / UPLOAD</span>
+        <h3>Send your design</h3>
+        <p>Drop a PNG or JPG, any resolution — we'll tell you if it needs a resize before print.</p>
+      </div>
+      <div class="step">
+        <span class="num">02 / PLACE &amp; PRINT</span>
+        <h3>Pick garment &amp; size</h3>
+        <p>Position your art, choose black or white cotton, select size and quantity.</p>
+      </div>
+      <div class="step">
+        <span class="num">03 / PRESS &amp; SHIP</span>
+        <h3>We press, you wear</h3>
+        <p>Fresh DTF transfer pressed same week, packed flat, and shipped to your address.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="catalog">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Starter Drops</h2>
+      <p>Sample designs to launch with — swap these for your own product photos anytime.</p>
+    </div>
+    <div class="cat-note">◇ PLACEHOLDER CATALOG — replace names, prices and art with your real designs before going live.</div>
+    <div class="grid" id="catalogGrid"></div>
+  </div>
+</section>
+
+<section id="builder">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Design Your Own</h2>
+      <p>Upload your artwork and see it pressed onto a shirt before you order.</p>
+    </div>
+    <div class="builder-grid">
+      <div>
+        <div class="mock-stage">
+          <div class="mock-corner tl"><div class="regmark"><span></span></div></div>
+          <div class="mock-corner tr"><div class="regmark"><span></span></div></div>
+          <div class="mock-corner bl"><div class="regmark"><span></span></div></div>
+          <div class="mock-corner br"><div class="regmark"><span></span></div></div>
+          <div id="teeSvgWrap">
+            <svg id="teeSvg" viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <clipPath id="teeClip">
+                  <path d="M95 20 L120 8 C130 22 170 22 180 8 L205 20 L245 55 L220 90 L200 78 L200 300 L100 300 L100 78 L80 90 L55 55 Z" />
+                </clipPath>
+              </defs>
+              <path id="teeBody" d="M95 20 L120 8 C130 22 170 22 180 8 L205 20 L245 55 L220 90 L200 78 L200 300 L100 300 L100 78 L80 90 L55 55 Z"
+                fill="#111" stroke="#f7f5f1" stroke-width="1.5" stroke-opacity="0.5"/>
+              <path d="M120 8 C130 22 170 22 180 8" fill="none" stroke="#f7f5f1" stroke-width="1.2" stroke-opacity="0.35"/>
+            </svg>
+            <div id="artLayer">
+              <img id="artImg" src="" style="display:none;">
+            </div>
+          </div>
+          <div class="mock-caption">LIVE MOCKUP — DRAG SLIDER TO SCALE</div>
+        </div>
+      </div>
+
+      <div class="builder-form">
+        <label>01 · Upload artwork</label>
+        <div class="upload-box" id="uploadBox">
+          <span id="uploadLabel">Click to upload PNG or JPG</span>
+          <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <label>02 · Garment color</label>
+        <div class="swatches">
+          <div class="swatch black active" data-color="#111" onclick="setTee(this,'#111')"></div>
+          <div class="swatch white" data-color="#f2f2ef" onclick="setTee(this,'#f2f2ef')"></div>
+        </div>
+
+        <div class="row2">
+          <div>
+            <label>03 · Size</label>
+            <select id="sizeSelect">
+              <option>S</option><option>M</option><option selected>L</option><option>XL</option><option>XXL</option>
+            </select>
+          </div>
+          <div>
+            <label>04 · Quantity</label>
+            <div class="qty-control">
+              <button onclick="stepQty(-1)">−</button>
+              <span id="qtyVal">1</span>
+              <button onclick="stepQty(1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <label>05 · Print size</label>
+        <div class="range-row">
+          <input type="range" id="scaleRange" min="20" max="55" value="34">
+          <span class="hint" id="scaleVal">34%</span>
+        </div>
+
+        <div class="price-line">
+          <span>ESTIMATED PRICE</span>
+          <span class="amt" id="builderPrice">₹499</span>
+        </div>
+        <button class="builder-add" onclick="addCustomToCart()">Add Custom Design to Cart</button>
+        <p class="hint">Base garment ₹349 + DTF print ₹150. Bulk pricing available on request via WhatsApp.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-logo">VALOURIQ</div>
+        <p class="foot-note" style="margin-top:8px;">Custom DTF transfer printing. Built to order, one press at a time.</p>
+      </div>
+      <p class="foot-note">◇ This is a starter storefront — connect WhatsApp checkout below, then swap in your real product photos, prices, and socials.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>Your Cart</h3>
+    <button class="drawer-close" onclick="closeCart()">×</button>
+  </div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-foot">
+    <div class="dtotal"><span>SUBTOTAL</span><span class="amt" id="drawerTotal">₹0</span></div>
+    <input class="wa-input" id="waNumber" placeholder="Your WhatsApp Business number (e.g. 91XXXXXXXXXX)">
+    <button class="checkout-btn" id="waCheckout" onclick="checkoutWhatsapp()">Order via WhatsApp</button>
+    <p class="checkout-note">No payment gateway yet — orders are confirmed and paid via WhatsApp. Add Razorpay/Stripe Payment Links later for online payment.</p>
+  </div>
+</div>
+
+<script>
+/* ---------------- Catalog data (placeholder) ---------------- */
+const catalog = [
+  {id:'c1', name:'Blackout Tee', tag:'Sample Drop 01', price:599, color:'#111'},
+  {id:'c2', name:'Chalk Line Tee', tag:'Sample Drop 01', price:599, color:'#f2f2ef'},
+  {id:'c3', name:'Press Proof Tee', tag:'Sample Drop 02', price:649, color:'#111'},
+  {id:'c4', name:'Registration Tee', tag:'Sample Drop 02', price:649, color:'#f2f2ef'},
+];
+
+function teeIconSVG(color, stroke){
+  return `<svg class="tee-icon" viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg">
+    <path d="M95 20 L120 8 C130 22 170 22 180 8 L205 20 L245 55 L220 90 L200 78 L200 300 L100 300 L100 78 L80 90 L55 55 Z"
+      fill="${color}" stroke="${stroke}" stroke-width="1.5" stroke-opacity="0.5"/>
+    <path d="M120 8 C130 22 170 22 180 8" fill="none" stroke="${stroke}" stroke-width="1.2" stroke-opacity="0.35"/>
+  </svg>`;
+}
+
+function renderCatalog(){
+  const grid = document.getElementById('catalogGrid');
+  grid.innerHTML = catalog.map(p => `
+    <div class="card">
+      <div class="card-art">${teeIconSVG(p.color, '#f7f5f1')}</div>
+      <div class="card-body">
+        <div class="card-tag">${p.tag}</div>
+        <div class="card-name">${p.name}</div>
+        <div class="card-price">₹${p.price}</div>
+        <button class="card-add" onclick="addPresetToCart('${p.id}')">Add to Cart</button>
+      </div>
+    </div>
+  `).join('');
+}
+renderCatalog();
+
+/* ---------------- Cart state ---------------- */
+let cart = JSON.parse(localStorage.getItem('valouriq_cart') || '[]');
+
+function saveCart(){
+  localStorage.setItem('valouriq_cart', JSON.stringify(cart));
+  renderCart();
+}
+
+function addPresetToCart(id){
+  const p = catalog.find(x => x.id === id);
+  cart.push({
+    id: 'item_' + Date.now(),
+    name: p.name,
+    meta: p.tag,
+    price: p.price,
+    thumb: null
+  });
+  saveCart();
+  openCart();
+}
+
+function renderCart(){
+  const wrap = document.getElementById('drawerItems');
+  const countEl = document.getElementById('cartCount');
+  countEl.textContent = cart.length;
+  if(cart.length === 0){
+    wrap.innerHTML = '<div class="drawer-empty">Your cart is empty.<br>Add a starter design or build your own.</div>';
+  } else {
+    wrap.innerHTML = cart.map(item => `
+      <div class="drawer-item">
+        <div class="di-thumb">${item.thumb ? `<img src="${item.thumb}">` : teeIconSVG(item.color||'#111','#f7f5f1')}</div>
+        <div class="di-info">
+          <div class="di-name">${item.name}</div>
+          <div class="di-meta">${item.meta}</div>
+          <div class="di-price">₹${item.price}</div>
+          <button class="di-remove" onclick="removeItem('${item.id}')">Remove</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  const total = cart.reduce((s,i)=>s+i.price,0);
+  document.getElementById('drawerTotal').textContent = '₹' + total;
+}
+
+function removeItem(id){
+  cart = cart.filter(i => i.id !== id);
+  saveCart();
+}
+
+function openCart(){
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeCart(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function checkoutWhatsapp(){
+  const num = document.getElementById('waNumber').value.replace(/\D/g,'');
+  if(!num){ alert('Enter your WhatsApp Business number first (this is the shop\\'s number customers message).'); return; }
+  if(cart.length === 0){ alert('Cart is empty.'); return; }
+  let msg = "Hi VALOURIQ! I'd like to order:\\n\\n";
+  cart.forEach((item,i) => {
+    msg += `${i+1}. ${item.name} (${item.meta}) — ₹${item.price}\\n`;
+  });
+  const total = cart.reduce((s,i)=>s+i.price,0);
+  msg += `\\nTotal: ₹${total}\\n\\nPlease confirm and share payment details.`;
+  const url = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+renderCart();
+
+/* ---------------- Live t-shirt mockup builder ---------------- */
+let currentColor = '#111';
+let qty = 1;
+let scalePct = 34;
+let uploadedDataUrl = null;
+
+function setTee(el, color){
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  currentColor = color;
+  document.getElementById('teeBody').setAttribute('fill', color);
+}
+
+document.getElementById('uploadBox').addEventListener('click', () => document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    uploadedDataUrl = ev.target.result;
+    document.getElementById('uploadLabel').textContent = file.name;
+    const img = document.getElementById('artImg');
+    img.src = uploadedDataUrl;
+    img.style.display = 'block';
+    positionArt();
+  };
+  reader.readAsDataURL(file);
+});
+
+function positionArt(){
+  const svgWrap = document.getElementById('teeSvgWrap');
+  const w = svgWrap.clientWidth;
+  const h = w * (320/300);
+  const img = document.getElementById('artImg');
+  const size = w * (scalePct/100);
+  img.style.width = size + 'px';
+  img.style.left = (w/2 - size/2) + 'px';
+  img.style.top = (h*0.32 - size/2) + 'px';
+  document.getElementById('artLayer').style.width = w + 'px';
+  document.getElementById('artLayer').style.height = h + 'px';
+}
+
+document.getElementById('scaleRange').addEventListener('input', function(e){
+  scalePct = +e.target.value;
+  document.getElementById('scaleVal').textContent = scalePct + '%';
+  positionArt();
+});
+window.addEventListener('resize', positionArt);
+
+function stepQty(d){
+  qty = Math.max(1, qty + d);
+  document.getElementById('qtyVal').textContent = qty;
+  updateBuilderPrice();
+}
+
+function updateBuilderPrice(){
+  const unit = 349 + 150;
+  document.getElementById('builderPrice').textContent = '₹' + (unit * qty);
+}
+updateBuilderPrice();
+
+function addCustomToCart(){
+  if(!uploadedDataUrl){ alert('Upload your artwork first.'); return; }
+  const size = document.getElementById('sizeSelect').value;
+  const unit = 349 + 150;
+  cart.push({
+    id: 'custom_' + Date.now(),
+    name: 'Custom DTF Tee',
+    meta: `Size ${size} · Qty ${qty} · ${currentColor === '#111' ? 'Black' : 'White'}`,
+    price: unit * qty,
+    thumb: uploadedDataUrl,
+    color: currentColor
+  });
+  saveCart();
+  openCart();
+}
+
+setTimeout(positionArt, 50);
+</script>
+
+</body>
+</html>
